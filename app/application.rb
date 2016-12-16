@@ -1,23 +1,25 @@
 class Application
   def call(env)
-    resp = Rack::Response.new
     req = Rack::Request.new(env)
-
     item_name = req.path.gsub('/items/','')
-    # binding.pry
+
     if req.path.include? '/items/'
       if Item.items.find {|item| item.name == item_name}
         item_price = Item.items.find {|item| item.name == item_name}.price
-        resp.write item_price
-        resp.status = 200
+        responsinator(item_price, 200)
       else
-        resp.write 'Item not found'
-        resp.status = 400
+        responsinator('Item not found', 400)
       end
     else
-      resp.write 'Route not found'
-      resp.status = 404
+      responsinator('Route not found', 404)
     end
+  end
+
+  def responsinator(message,status_code)
+    resp = Rack::Response.new
+    resp.write message
+    resp.status = status_code
     resp.finish
   end
+
 end
